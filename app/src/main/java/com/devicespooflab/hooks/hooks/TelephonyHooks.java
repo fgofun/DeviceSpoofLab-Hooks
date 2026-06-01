@@ -1,6 +1,7 @@
 package com.devicespooflab.hooks.hooks;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
@@ -27,6 +28,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getDeviceId");
                             param.setResult(ConfigManager.getIMEI());
                         }
                     });
@@ -38,6 +40,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getDeviceId(slot)");
                             param.setResult(ConfigManager.getIMEI());
                         }
                     });
@@ -49,6 +52,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getImei");
                             param.setResult(ConfigManager.getIMEI());
                         }
                     });
@@ -60,6 +64,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getImei(slot)");
                             param.setResult(ConfigManager.getIMEI());
                         }
                     });
@@ -71,6 +76,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getMeid");
                             param.setResult(ConfigManager.getMEID());
                         }
                     });
@@ -82,6 +88,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getMeid(slot)");
                             param.setResult(ConfigManager.getMEID());
                         }
                     });
@@ -93,6 +100,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getSubscriberId");
                             param.setResult(ConfigManager.getIMSI());
                         }
                     });
@@ -104,6 +112,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getSubscriberId(slot)");
                             param.setResult(ConfigManager.getIMSI());
                         }
                     });
@@ -115,6 +124,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getSimSerialNumber");
                             param.setResult(ConfigManager.getICCID());
                         }
                     });
@@ -126,6 +136,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getSimSerialNumber(slot)");
                             param.setResult(ConfigManager.getICCID());
                         }
                     });
@@ -137,6 +148,7 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getLine1Number");
                             param.setResult(ConfigManager.getPhoneNumber());
                         }
                     });
@@ -148,13 +160,13 @@ public class TelephonyHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("TelephonyManager", "getLine1Number(slot)");
                             param.setResult(ConfigManager.getPhoneNumber());
                         }
                     });
         } catch (NoSuchMethodError ignored) {
         }
 
-        // Hook network operator methods (MCC/MNC)
         try {
             XposedHelpers.findAndHookMethod(telephonyManager, "getNetworkOperator",
                     new XC_MethodHook() {
@@ -162,6 +174,7 @@ public class TelephonyHooks {
                         protected void afterHookedMethod(MethodHookParam param) {
                             String mccMnc = ConfigManager.getSystemProperty("gsm.operator.numeric", null);
                             if (mccMnc != null) {
+                                HookCallLogger.log("TelephonyManager", "getNetworkOperator");
                                 param.setResult(mccMnc);
                             }
                         }
@@ -176,6 +189,7 @@ public class TelephonyHooks {
                         protected void afterHookedMethod(MethodHookParam param) {
                             String operatorName = ConfigManager.getSystemProperty("gsm.operator.alpha", null);
                             if (operatorName != null) {
+                                HookCallLogger.log("TelephonyManager", "getNetworkOperatorName");
                                 param.setResult(operatorName);
                             }
                         }
@@ -190,6 +204,7 @@ public class TelephonyHooks {
                         protected void afterHookedMethod(MethodHookParam param) {
                             String simMccMnc = ConfigManager.getSystemProperty("gsm.sim.operator.numeric", null);
                             if (simMccMnc != null) {
+                                HookCallLogger.log("TelephonyManager", "getSimOperator");
                                 param.setResult(simMccMnc);
                             }
                         }
@@ -204,6 +219,7 @@ public class TelephonyHooks {
                         protected void afterHookedMethod(MethodHookParam param) {
                             String simOperatorName = ConfigManager.getSystemProperty("gsm.sim.operator.alpha", null);
                             if (simOperatorName != null) {
+                                HookCallLogger.log("TelephonyManager", "getSimOperatorName");
                                 param.setResult(simOperatorName);
                             }
                         }
@@ -218,6 +234,7 @@ public class TelephonyHooks {
                         protected void afterHookedMethod(MethodHookParam param) {
                             String simCountry = ConfigManager.getSystemProperty("gsm.sim.operator.iso-country", null);
                             if (simCountry != null) {
+                                HookCallLogger.log("TelephonyManager", "getSimCountryIso");
                                 param.setResult(simCountry);
                             }
                         }
@@ -232,6 +249,7 @@ public class TelephonyHooks {
                         protected void afterHookedMethod(MethodHookParam param) {
                             String networkCountry = ConfigManager.getSystemProperty("gsm.operator.iso-country", null);
                             if (networkCountry != null) {
+                                HookCallLogger.log("TelephonyManager", "getNetworkCountryIso");
                                 param.setResult(networkCountry);
                             }
                         }

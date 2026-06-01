@@ -1,6 +1,7 @@
 package com.devicespooflab.hooks.hooks;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -23,10 +24,8 @@ public class SystemPropertiesHooks {
 
     public static void hook(XC_LoadPackage.LoadPackageParam lpparam) {
         try {
-            // Hook SystemProperties in app's classloader
             hookSystemProperties(lpparam.classLoader);
 
-            // Also try to hook in system classloader (for apps that use it)
             try {
                 ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
                 if (systemClassLoader != null && systemClassLoader != lpparam.classLoader) {
@@ -55,10 +54,9 @@ public class SystemPropertiesHooks {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         String key = (String) param.args[0];
-                        String originalValue = (String) param.getResult();
                         String spoofedValue = ConfigManager.getSystemProperty(key, null);
-
                         if (spoofedValue != null) {
+                            HookCallLogger.log("SystemProperties", "get", key);
                             param.setResult(spoofedValue);
                         }
                     }
@@ -75,10 +73,9 @@ public class SystemPropertiesHooks {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         String key = (String) param.args[0];
-                        String defaultValue = (String) param.args[1];
                         String spoofedValue = ConfigManager.getSystemProperty(key, null);
-
                         if (spoofedValue != null) {
+                            HookCallLogger.log("SystemProperties", "get(default)", key);
                             param.setResult(spoofedValue);
                         }
                     }
@@ -96,10 +93,10 @@ public class SystemPropertiesHooks {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         String key = (String) param.args[0];
                         String spoofedValue = ConfigManager.getSystemProperty(key, null);
-
                         if (spoofedValue != null) {
                             try {
                                 int intValue = Integer.parseInt(spoofedValue);
+                                HookCallLogger.log("SystemProperties", "getInt", key);
                                 param.setResult(intValue);
                             } catch (NumberFormatException e) {
                                 // Invalid int value, keep original
@@ -120,11 +117,10 @@ public class SystemPropertiesHooks {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         String key = (String) param.args[0];
                         String spoofedValue = ConfigManager.getSystemProperty(key, null);
-
                         if (spoofedValue != null) {
-                            // Handle both "true"/"false" and "1"/"0"
                             boolean boolValue = spoofedValue.equals("1") ||
                                               spoofedValue.equalsIgnoreCase("true");
+                            HookCallLogger.log("SystemProperties", "getBoolean", key);
                             param.setResult(boolValue);
                         }
                     }
@@ -142,10 +138,10 @@ public class SystemPropertiesHooks {
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         String key = (String) param.args[0];
                         String spoofedValue = ConfigManager.getSystemProperty(key, null);
-
                         if (spoofedValue != null) {
                             try {
                                 long longValue = Long.parseLong(spoofedValue);
+                                HookCallLogger.log("SystemProperties", "getLong", key);
                                 param.setResult(longValue);
                             } catch (NumberFormatException e) {
                                 // Invalid long value, keep original

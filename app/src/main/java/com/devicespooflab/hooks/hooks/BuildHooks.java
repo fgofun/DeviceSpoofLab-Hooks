@@ -1,6 +1,7 @@
 package com.devicespooflab.hooks.hooks;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -33,9 +34,7 @@ public class BuildHooks {
                 return;
             }
 
-            // Hook Build.getSerial() method (Android 8+)
             hookGetSerial(buildClass);
-
             XposedBridge.log(TAG + ": Successfully hooked Build.getSerial()");
 
         } catch (Exception e) {
@@ -45,11 +44,11 @@ public class BuildHooks {
 
     private static void hookGetSerial(Class<?> buildClass) {
         try {
-            // Build.getSerial() - requires READ_PHONE_STATE permission (Android 8+)
             XposedHelpers.findAndHookMethod(buildClass, "getSerial",
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        HookCallLogger.log("Build", "getSerial");
                         param.setResult(ConfigManager.getSerial());
                     }
                 });

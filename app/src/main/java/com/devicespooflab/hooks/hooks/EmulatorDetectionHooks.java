@@ -1,5 +1,7 @@
 package com.devicespooflab.hooks.hooks;
 
+import com.devicespooflab.hooks.utils.HookCallLogger;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +25,6 @@ public class EmulatorDetectionHooks {
 
     private static final String TAG = "DeviceSpoofLab-Emulator";
 
-    // Emulator-specific files to hide
     private static final String[] EMULATOR_FILES = {
         "/dev/qemu_pipe",
         "/dev/goldfish_pipe",
@@ -34,7 +35,6 @@ public class EmulatorDetectionHooks {
         "/sys/devices/virtual/misc/goldfish_sync"
     };
 
-    // Keywords in filenames that indicate emulator
     private static final String[] EMULATOR_KEYWORDS = {
         "goldfish",
         "ranchu",
@@ -51,9 +51,6 @@ public class EmulatorDetectionHooks {
         }
     }
 
-    /**
-     * Hook File.exists() to return false for emulator-specific files
-     */
     private static void hookFileExists() {
         try {
             XposedHelpers.findAndHookMethod(File.class, "exists",
@@ -63,18 +60,18 @@ public class EmulatorDetectionHooks {
                         File file = (File) param.thisObject;
                         String path = file.getAbsolutePath();
 
-                        // Check if this is an emulator-specific file
                         for (String emuFile : EMULATOR_FILES) {
                             if (path.equals(emuFile) || path.contains(emuFile)) {
+                                HookCallLogger.log("EmulatorDetection", "File.exists", path);
                                 param.setResult(false);
                                 return;
                             }
                         }
 
-                        // Check for emulator keywords in path
                         String lowerPath = path.toLowerCase();
                         for (String keyword : EMULATOR_KEYWORDS) {
                             if (lowerPath.contains(keyword)) {
+                                HookCallLogger.log("EmulatorDetection", "File.exists(keyword)", keyword);
                                 param.setResult(false);
                                 return;
                             }
@@ -86,54 +83,48 @@ public class EmulatorDetectionHooks {
         }
     }
 
-    /**
-     * Hook File.listFiles() to filter out emulator files from directory listings
-     */
     private static void hookFileListFiles() {
         try {
-            // Hook listFiles()
             XposedHelpers.findAndHookMethod(File.class, "listFiles",
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         File[] files = (File[]) param.getResult();
-                        if (files == null) {
-                            return;
-                        }
-
+                        if (files == null) return;
                         List<File> filtered = filterEmulatorFiles(Arrays.asList(files));
+                        if (filtered.size() < files.length) {
+                            HookCallLogger.log("EmulatorDetection", "File.listFiles");
+                        }
                         param.setResult(filtered.toArray(new File[0]));
                     }
                 });
 
-            // Hook listFiles(FileFilter)
             XposedHelpers.findAndHookMethod(File.class, "listFiles",
                 java.io.FileFilter.class,
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         File[] files = (File[]) param.getResult();
-                        if (files == null) {
-                            return;
-                        }
-
+                        if (files == null) return;
                         List<File> filtered = filterEmulatorFiles(Arrays.asList(files));
+                        if (filtered.size() < files.length) {
+                            HookCallLogger.log("EmulatorDetection", "File.listFiles(FileFilter)");
+                        }
                         param.setResult(filtered.toArray(new File[0]));
                     }
                 });
 
-            // Hook listFiles(FilenameFilter)
             XposedHelpers.findAndHookMethod(File.class, "listFiles",
                 java.io.FilenameFilter.class,
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                         File[] files = (File[]) param.getResult();
-                        if (files == null) {
-                            return;
-                        }
-
+                        if (files == null) return;
                         List<File> filtered = filterEmulatorFiles(Arrays.asList(files));
+                        if (filtered.size() < files.length) {
+                            HookCallLogger.log("EmulatorDetection", "File.listFiles(FilenameFilter)");
+                        }
                         param.setResult(filtered.toArray(new File[0]));
                     }
                 });
@@ -142,18 +133,13 @@ public class EmulatorDetectionHooks {
         }
     }
 
-    /**
-     * Filter emulator files from a list
-     */
     private static List<File> filterEmulatorFiles(List<File> files) {
         List<File> filtered = new ArrayList<>();
-
         for (File file : files) {
             String name = file.getName().toLowerCase();
             String path = file.getAbsolutePath().toLowerCase();
             boolean isEmulatorFile = false;
 
-            // Check for emulator keywords
             for (String keyword : EMULATOR_KEYWORDS) {
                 if (name.contains(keyword) || path.contains(keyword)) {
                     isEmulatorFile = true;
@@ -161,7 +147,6 @@ public class EmulatorDetectionHooks {
                 }
             }
 
-            // Check for exact emulator paths
             if (!isEmulatorFile) {
                 for (String emuFile : EMULATOR_FILES) {
                     if (path.equals(emuFile.toLowerCase()) || path.contains(emuFile.toLowerCase())) {
@@ -175,7 +160,6 @@ public class EmulatorDetectionHooks {
                 filtered.add(file);
             }
         }
-
         return filtered;
     }
 }

@@ -14,6 +14,7 @@ import com.devicespooflab.hooks.hooks.SystemPropertiesHooks;
 import com.devicespooflab.hooks.hooks.TelephonyHooks;
 import com.devicespooflab.hooks.hooks.WebViewHooks;
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XposedBridge;
@@ -47,8 +48,10 @@ public class MainHook implements IXposedHookLoadPackage {
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
-        // Log that we're loading for this package
         XposedBridge.log(TAG + ": Loading hooks for " + lpparam.packageName);
+
+        // Initialise logger for this package process (clears the dedup set).
+        HookCallLogger.setPackage(lpparam.packageName);
 
         // Initialize config (reads from file or uses embedded defaults)
         try {
@@ -62,7 +65,6 @@ public class MainHook implements IXposedHookLoadPackage {
 
         // Apply hooks in dependency order
         // 1. Core system property hooks (CRITICAL - catches reflection-based property reads)
-        // This is SAFE and works for all apps
         try {
             SystemPropertiesHooks.hook(lpparam);
             XposedBridge.log(TAG + ": ✅ SystemPropertiesHooks loaded");

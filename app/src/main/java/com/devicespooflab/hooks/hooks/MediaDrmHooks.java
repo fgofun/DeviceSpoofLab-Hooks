@@ -1,6 +1,7 @@
 package com.devicespooflab.hooks.hooks;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
@@ -31,8 +32,8 @@ public class MediaDrmHooks {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
                             String propertyName = (String) param.args[0];
-
                             if (DEVICE_UNIQUE_ID.equals(propertyName)) {
+                                HookCallLogger.log("MediaDrm", "getPropertyByteArray", DEVICE_UNIQUE_ID);
                                 param.setResult(ConfigManager.getMediaDrmId());
                             }
                         }

@@ -3,6 +3,7 @@ package com.devicespooflab.hooks.hooks;
 import android.os.Build;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedBridge;
@@ -21,7 +22,6 @@ public class AppSetIdHooks {
     private static final int MIN_SDK = 30; // Android 11
 
     public static void hook(XC_LoadPackage.LoadPackageParam lpparam) {
-        // Only hook on Android 11+ (SDK 30+)
         if (Build.VERSION.SDK_INT < MIN_SDK) {
             return;
         }
@@ -42,11 +42,11 @@ public class AppSetIdHooks {
         }
 
         try {
-            // Hook AppSetIdInfo.getId()
             XposedHelpers.findAndHookMethod(appSetIdInfoClass, "getId",
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        HookCallLogger.log("AppSetId", "AppSetIdInfo.getId");
                         param.setResult(ConfigManager.getAppSetId());
                     }
                 });
@@ -55,13 +55,11 @@ public class AppSetIdHooks {
         }
 
         try {
-            // Hook AppSetIdInfo.getScope()
-            // Scope: 1 = APP, 2 = DEVELOPER
-            // Return APP scope (1) for per-app isolation
             XposedHelpers.findAndHookMethod(appSetIdInfoClass, "getScope",
                 new XC_MethodHook() {
                     @Override
                     protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        HookCallLogger.log("AppSetId", "AppSetIdInfo.getScope");
                         param.setResult(1); // APP scope
                     }
                 });

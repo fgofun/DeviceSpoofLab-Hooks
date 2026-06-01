@@ -3,6 +3,7 @@ package com.devicespooflab.hooks.hooks;
 import android.content.ContentResolver;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
@@ -36,17 +37,16 @@ public class SettingsHooks {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
                             String name = (String) param.args[1];
-
-                            if (name == null) {
-                                return;
-                            }
+                            if (name == null) return;
 
                             if (ANDROID_ID.equals(name)) {
+                                HookCallLogger.log("Settings.Secure", "getString", "android_id");
                                 param.setResult(ConfigManager.getAndroidId());
                                 return;
                             }
 
                             if (name.contains("gsf") || GSF_ID.equals(name)) {
+                                HookCallLogger.log("Settings.Secure", "getString", "gsf_id");
                                 param.setResult(ConfigManager.getGSFId());
                             }
                         }
@@ -61,17 +61,16 @@ public class SettingsHooks {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
                             String name = (String) param.args[1];
-
-                            if (name == null) {
-                                return;
-                            }
+                            if (name == null) return;
 
                             if (ANDROID_ID.equals(name)) {
+                                HookCallLogger.log("Settings.Secure", "getString(default)", "android_id");
                                 param.setResult(ConfigManager.getAndroidId());
                                 return;
                             }
 
                             if (name.contains("gsf") || GSF_ID.equals(name)) {
+                                HookCallLogger.log("Settings.Secure", "getString(default)", "gsf_id");
                                 param.setResult(ConfigManager.getGSFId());
                             }
                         }

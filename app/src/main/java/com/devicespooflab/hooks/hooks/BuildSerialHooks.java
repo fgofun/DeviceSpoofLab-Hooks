@@ -1,6 +1,7 @@
 package com.devicespooflab.hooks.hooks;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
@@ -29,6 +30,7 @@ public class BuildSerialHooks {
                     new XC_MethodHook() {
                         @Override
                         protected void afterHookedMethod(MethodHookParam param) {
+                            HookCallLogger.log("Build", "getSerial");
                             param.setResult(ConfigManager.getSerial());
                         }
                     });

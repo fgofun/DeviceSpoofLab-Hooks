@@ -1,6 +1,7 @@
 package com.devicespooflab.hooks.hooks;
 
 import com.devicespooflab.hooks.utils.ConfigManager;
+import com.devicespooflab.hooks.utils.HookCallLogger;
 
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
@@ -23,6 +24,7 @@ public class AdvertisingIdHooks {
                         new XC_MethodHook() {
                             @Override
                             protected void afterHookedMethod(MethodHookParam param) {
+                                HookCallLogger.log("AdvertisingId", "AdvertisingIdClient.Info.getId");
                                 param.setResult(ConfigManager.getGAID());
                             }
                         });
@@ -41,6 +43,7 @@ public class AdvertisingIdHooks {
                         new XC_MethodHook() {
                             @Override
                             protected void afterHookedMethod(MethodHookParam param) {
+                                HookCallLogger.log("AdvertisingId", "zzx.getId");
                                 param.setResult(ConfigManager.getGAID());
                             }
                         });
@@ -61,10 +64,8 @@ public class AdvertisingIdHooks {
                         new XC_MethodHook() {
                             @Override
                             protected void afterHookedMethod(MethodHookParam param) {
-                                Object info = param.getResult();
-                                if (info != null) {
-                                    // The getId() hook above will handle returning our GAID
-                                    // when the app calls info.getId()
+                                if (param.getResult() != null) {
+                                    HookCallLogger.log("AdvertisingId", "getAdvertisingIdInfo");
                                 }
                             }
                         });
